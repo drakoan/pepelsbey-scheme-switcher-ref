@@ -16,7 +16,7 @@ const getNewMedia = (scheme, color) => scheme === 'auto' ? `(${PCS}: ${color})` 
   scheme === color ? 'all' : 'not all';
 
 const switchMedia = scheme => {
-  ['ligth', 'dark'].forEach(color => {
+  ['light', 'dark'].forEach(color => {
     const colorStyles = getColorSchemeStylesheet(color);
     const newMedia = getNewMedia(scheme, color);
     [...colorStyles].forEach(link => link.media = newMedia);
