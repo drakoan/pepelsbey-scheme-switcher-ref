@@ -24,8 +24,8 @@ const switchMedia = newScheme => {
   });
 };
 
-const initSwitcherListeners = (switcherRadios, callbackFn) => {
-  const switcherRadios = document.querySelectorAll(SWITCHER_RADIO_CLASS);
+const initSwitcherListeners = (className, callbackFn) => {
+  const switcherRadios = document.querySelectorAll(className);
   [...switcherRadios].forEach((radio) => {
     radio.addEventListener('change', event => callbackFn(event.target.value));
   });
