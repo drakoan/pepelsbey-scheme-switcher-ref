@@ -19,7 +19,7 @@ const switchMedia = newScheme => {
   ['light', 'dark'].forEach(colorScheme => {
     const colorStyles = getColorSchemeStylesheet(colorScheme);
     const newMedia = getNewMedia(newScheme, colorScheme);
-    console.log('For '+color+': nodes='  + colorStyles + '; media='+newMedia);
+    console.log('For '+colorScheme+': nodes='  + colorStyles + '; media='+newMedia);
     [...colorStyles].forEach(link => link.media = newMedia);
   });
 };
