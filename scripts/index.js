@@ -20,7 +20,6 @@ const switchMedia = newScheme => {
   ['light', 'dark'].forEach(colorScheme => {
     const colorStyles = getColorSchemeStylesheet(colorScheme);
     const newMedia = getNewMedia(newScheme, colorScheme);
-    console.log('For '+colorScheme+': nodes='  + colorStyles + '; media='+newMedia);
     [...colorStyles].forEach(link => link.media = newMedia);
   });
 };
@@ -40,12 +39,12 @@ function runSchemeSwitcher() {
     switchMedia(scheme);
     updateStorage(scheme);
   };
+  const initSwitcher = keepRadioButtonChecked;
 
-  const needSetScheme = (systemScheme !== null && savedScheme !== systemScheme) ? true : false;
+  const haveSave = savedScheme !== null ? true : false;
+  const needSetScheme = (haveSave && savedScheme !== systemScheme) ? true : false;
   if (needSetScheme) setScheme(savedScheme);
-  
-  const needInitSwitcher = savedScheme !== null ? true : false;
-  if (needInitSwitcher) keepRadioButtonChecked(SWITCHER_RADIO_CLASS, savedScheme);
+  if (haveSave) initSwitcher(SWITCHER_RADIO_CLASS, savedScheme);
   
   const switcherRadios = document.querySelectorAll(SWITCHER_RADIO_CLASS);
   initSwitcherListeners(switcherRadios, setScheme);
