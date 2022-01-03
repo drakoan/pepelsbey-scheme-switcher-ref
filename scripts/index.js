@@ -15,10 +15,12 @@ const getColorSchemeStylesheet = scheme => document.querySelectorAll(
 const getNewMedia = (scheme, color) => scheme === 'auto' ? `(${PCS}: ${color})` :
   scheme === color ? 'all' : 'not all';
 
-const switchMedia = scheme => {
-  ['light', 'dark'].forEach(color => {
-    const colorStyles = getColorSchemeStylesheet(color);
-    const newMedia = getNewMedia(scheme, color);
+const switchMedia = newScheme => {
+  ['light', 'dark'].forEach(colorScheme => {
+    const colorStyles = getColorSchemeStylesheet(colorScheme);
+    console.log(colorStyles);
+    const newMedia = getNewMedia(newScheme, colorScheme);
+    console.log(newMedia);
     [...colorStyles].forEach(link => link.media = newMedia);
   });
 };
