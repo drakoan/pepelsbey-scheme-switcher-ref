@@ -25,6 +25,7 @@ const switchMedia = newScheme => {
 };
 
 const initSwitcherListeners = (switcherRadios, callbackFn) => {
+  const switcherRadios = document.querySelectorAll(SWITCHER_RADIO_CLASS);
   [...switcherRadios].forEach((radio) => {
     radio.addEventListener('change', event => callbackFn(event.target.value));
   });
@@ -32,22 +33,21 @@ const initSwitcherListeners = (switcherRadios, callbackFn) => {
 
 function runSchemeSwitcher() {
   const SWITCHER_RADIO_CLASS = '.switcher__radio';
+  const initSwitcher = keepRadioButtonChecked;
   const systemScheme = getSystemScheme();
   const savedScheme = getSavedScheme();
-  
+
   const setScheme = scheme => {
     switchMedia(scheme);
     updateStorage(scheme);
   };
-  const initSwitcher = keepRadioButtonChecked;
 
   const haveSave = savedScheme !== null ? true : false;
   const needSetScheme = (haveSave && savedScheme !== systemScheme) ? true : false;
+  
   if (needSetScheme) setScheme(savedScheme);
   if (haveSave) initSwitcher(SWITCHER_RADIO_CLASS, savedScheme);
-  
-  const switcherRadios = document.querySelectorAll(SWITCHER_RADIO_CLASS);
-  initSwitcherListeners(switcherRadios, setScheme);
+  initSwitcherListeners(SWITCHER_RADIO_CLASS, setScheme);
 }
 
 runSchemeSwitcher();
