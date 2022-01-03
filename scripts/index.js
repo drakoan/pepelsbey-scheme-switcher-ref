@@ -1,82 +1,52 @@
-const lightStyles = document.querySelectorAll('link[rel=stylesheet][media*=prefers-color-scheme][media*=light]');
-const darkStyles = document.querySelectorAll('link[rel=stylesheet][media*=prefers-color-scheme][media*=dark]');
-const darkSchemeMedia = matchMedia('(prefers-color-scheme: dark)');
-const switcherRadios = document.querySelectorAll('.switcher__radio');
+const PCS = 'prefers-color-scheme';
+const getSystemScheme = () => matchMedia(`(${PCS}: dark)`).matches ? 'dark' : 'light';
 
-function setupSwitcher() {
-    const savedScheme = getSavedScheme();
+const getSavedScheme = () => localStorage.getItem('color-scheme');
+const clearScheme = () => localStorage.removeItem('color-scheme');
+const saveScheme = scheme => localStorage.setItem('color-scheme', scheme);
+const updateStorage = scheme => scheme === 'auto' ? clearScheme() : saveScheme(scheme);
 
-    if (savedScheme !== null) {
-        const currentRadio = document.querySelector(`.switcher__radio[value=${savedScheme}]`);
-        currentRadio.checked = true;
-    }
+const keepRadioButtonChecked = (radioName, value) =>
+  document.querySelector(`${radioName}[value=${value}]`).checked = true;
 
-    [...switcherRadios].forEach((radio) => {
-        radio.addEventListener('change', (event) => {
-            setScheme(event.target.value);
-        });
-    });
-}
+const getColorSchemeStylesheet = scheme => document.querySelectorAll(
+  `link[rel=stylesheet][media*=${PCS}][media*=${scheme}]`);
 
-function setupScheme() {
-    const savedScheme = getSavedScheme();
-    const systemScheme = getSystemScheme();
+const getNewMedia = (scheme, color) => scheme === 'auto' ? `(${PCS}: ${color})` :
+  scheme === color ? 'all' : 'not all';
 
-    if (savedScheme === null) return;
+const switchMedia = scheme => {
+  ['ligth', 'dark'].forEach(color => {
+    const colorStyles = getColorSchemeStylesheet(color);
+    const newMedia = getNewMedia(scheme, color);
+    [...colorStyles].forEach(link => link.media = newMedia);
+  });
+};
 
-    if (savedScheme !== systemScheme) {
-        setScheme(savedScheme);
-    }
-}
+const initSwitcherListeners = (switcherRadios, callbackFn) => {
+  [...switcherRadios].forEach((radio) => {
+    radio.addEventListener('change', event => callbackFn(event.target.value));
+  });
+};
 
-function setScheme(scheme) {
+function runShemeSwitcher() {
+  const SWITCHER_RADIO_CLASS = '.switcher__radio';
+  const systemScheme = getSystemScheme();
+  const savedScheme = getSavedScheme();
+  
+  const setScheme = scheme => {
     switchMedia(scheme);
+    updateStorage(scheme);
+  };
 
-    if (scheme === 'auto') {
-        clearScheme();
-    } else {
-        saveScheme(scheme);
-    }
+  const needSetSheme = (systemScheme !== null && savedScheme !== systemScheme) ? true : false;
+  if (needSetSheme) setScheme(savedScheme);
+  
+  const needInitSwitcher = savedScheme !== null ? true : false;
+  if (needInitSwitcher) keepRadioButtonChecked(SWITCHER_RADIO_CLASS, savedScheme);
+  
+  const switcherRadios = document.querySelectorAll(SWITCHER_RADIO_CLASS);
+  initSwitcherListeners(switcherRadios, setScheme);
 }
 
-function switchMedia(scheme) {
-    let lightMedia;
-    let darkMedia;
-
-    if (scheme === 'auto') {
-        lightMedia = '(prefers-color-scheme: light)';
-        darkMedia = '(prefers-color-scheme: dark)';
-    } else {
-        lightMedia = (scheme === 'light') ? 'all' : 'not all';
-        darkMedia = (scheme === 'dark') ? 'all' : 'not all';
-    }
-
-    [...lightStyles].forEach((link) => {
-        link.media = lightMedia;
-    });
-
-    [...darkStyles].forEach((link) => {
-        link.media = darkMedia;
-    });
-}
-
-function getSystemScheme() {
-    const darkScheme = darkSchemeMedia.matches;
-
-    return darkScheme ? 'dark' : 'light';
-}
-
-function getSavedScheme() {
-    return localStorage.getItem('color-scheme');
-}
-
-function saveScheme(scheme) {
-    localStorage.setItem('color-scheme', scheme);
-}
-
-function clearScheme() {
-    localStorage.removeItem('color-scheme');
-}
-
-setupSwitcher();
-setupScheme();
+runShemeSwitcher();
