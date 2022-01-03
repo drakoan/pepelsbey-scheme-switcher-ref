@@ -1,15 +1,14 @@
 const PCS = 'prefers-color-scheme';
 const getSystemScheme = () => matchMedia(`(${PCS}: dark)`).matches ? 'dark' : 'light';
 
-const getSavedScheme = () => localStorage.getItem('color-scheme');
-const clearScheme = () => localStorage.removeItem('color-scheme');
-const saveScheme = scheme => localStorage.setItem('color-scheme', scheme);
+const getSavedScheme = () => localStorage.getItem(LS_SHEME_KEY);
+const clearScheme = () => localStorage.removeItem(LS_SHEME_KEY);
+const saveScheme = scheme => localStorage.setItem(LS_SHEME_KEY, scheme);
 const updateStorage = scheme => scheme === 'auto' ? clearScheme() : saveScheme(scheme);
 
 const keepRadioButtonChecked = (radioName, value) =>
   document.querySelector(`${radioName}[value=${value}]`).checked = true;
 
-const COLOR_SCHEME_CLASS_PREFIX = 'stylesheet__color__scheme--'
 const getColorSchemeStylesheet = scheme =>
   document.getElementsByClassName(COLOR_SCHEME_CLASS_PREFIX+scheme);
 
@@ -33,6 +32,8 @@ const initSwitcherListeners = (className, callbackFn) => {
 
 function runSchemeSwitcher() {
   const SWITCHER_RADIO_CLASS = '.switcher__radio';
+  const LS_SHEME_KEY = 'color-scheme';
+  const COLOR_SCHEME_CLASS_PREFIX = 'stylesheet__color__scheme--';
   const initSwitcher = keepRadioButtonChecked;
   const systemScheme = getSystemScheme();
   const savedScheme = getSavedScheme();
