@@ -9,8 +9,8 @@ const updateStorage = scheme => scheme === 'auto' ? clearScheme() : saveScheme(s
 const keepRadioButtonChecked = (radioName, value) =>
   document.querySelector(`${radioName}[value=${value}]`).checked = true;
 
-const getColorSchemeStylesheet = scheme => document.querySelectorAll(
-  `link[rel=stylesheet][media*=${PCS}][media*=${scheme}]`);
+const COLOR_SCHEME_CLASS = 'stylesheet__color__scheme--';
+const getColorSchemeStylesheet = scheme => document.querySelectorAll(COLOR_SCHEME_CLASS+scheme);
 
 const getNewMedia = (scheme, color) => scheme === 'auto' ? `(${PCS}: ${color})` :
   scheme === color ? 'all' : 'not all';
@@ -18,9 +18,8 @@ const getNewMedia = (scheme, color) => scheme === 'auto' ? `(${PCS}: ${color})` 
 const switchMedia = newScheme => {
   ['light', 'dark'].forEach(colorScheme => {
     const colorStyles = getColorSchemeStylesheet(colorScheme);
-    console.log(colorStyles);
     const newMedia = getNewMedia(newScheme, colorScheme);
-    console.log(newMedia);
+    console.log('For '+color+': nodes='  + colorStyles + '; media='+newMedia);
     [...colorStyles].forEach(link => link.media = newMedia);
   });
 };
@@ -31,7 +30,7 @@ const initSwitcherListeners = (switcherRadios, callbackFn) => {
   });
 };
 
-function runShemeSwitcher() {
+function runSchemeSwitcher() {
   const SWITCHER_RADIO_CLASS = '.switcher__radio';
   const systemScheme = getSystemScheme();
   const savedScheme = getSavedScheme();
@@ -41,8 +40,8 @@ function runShemeSwitcher() {
     updateStorage(scheme);
   };
 
-  const needSetSheme = (systemScheme !== null && savedScheme !== systemScheme) ? true : false;
-  if (needSetSheme) setScheme(savedScheme);
+  const needSetScheme = (systemScheme !== null && savedScheme !== systemScheme) ? true : false;
+  if (needSetScheme) setScheme(savedScheme);
   
   const needInitSwitcher = savedScheme !== null ? true : false;
   if (needInitSwitcher) keepRadioButtonChecked(SWITCHER_RADIO_CLASS, savedScheme);
@@ -51,4 +50,4 @@ function runShemeSwitcher() {
   initSwitcherListeners(switcherRadios, setScheme);
 }
 
-runShemeSwitcher();
+runSchemeSwitcher();
