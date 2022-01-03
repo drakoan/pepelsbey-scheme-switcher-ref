@@ -9,8 +9,9 @@ const updateStorage = scheme => scheme === 'auto' ? clearScheme() : saveScheme(s
 const keepRadioButtonChecked = (radioName, value) =>
   document.querySelector(`${radioName}[value=${value}]`).checked = true;
 
-const COLOR_SCHEME_CLASS = 'stylesheet__color__scheme--';
-const getColorSchemeStylesheet = scheme => document.querySelectorAll(COLOR_SCHEME_CLASS+scheme);
+const COLOR_SCHEME_CLASS_PREFIX = 'stylesheet__color__scheme--'
+const getColorSchemeStylesheet = scheme =>
+  document.getElementsByClassName(COLOR_SCHEME_CLASS_PREFIX+scheme);
 
 const getNewMedia = (scheme, color) => scheme === 'auto' ? `(${PCS}: ${color})` :
   scheme === color ? 'all' : 'not all';
