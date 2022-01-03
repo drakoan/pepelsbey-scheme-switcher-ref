@@ -1,82 +1,54 @@
-const lightStyles = document.querySelectorAll('link[rel=stylesheet][media*=prefers-color-scheme][media*=light]');
-const darkStyles = document.querySelectorAll('link[rel=stylesheet][media*=prefers-color-scheme][media*=dark]');
-const darkSchemeMedia = matchMedia('(prefers-color-scheme: dark)');
-const switcherRadios = document.querySelectorAll('.switcher__radio');
+const PCS = 'prefers-color-scheme';
+const getSystemScheme = () => matchMedia(`(${PCS}: dark)`).matches ? 'dark' : 'light';
 
-function setupSwitcher() {
-    const savedScheme = getSavedScheme();
+const LS_SHEME_KEY = 'color-scheme';
+const getSavedScheme = () => localStorage.getItem(LS_SHEME_KEY);
+const clearScheme = () => localStorage.removeItem(LS_SHEME_KEY);
+const saveScheme = scheme => localStorage.setItem(LS_SHEME_KEY, scheme);
+const updateStorage = scheme => scheme === 'auto' ? clearScheme() : saveScheme(scheme);
 
-    if (savedScheme !== null) {
-        const currentRadio = document.querySelector(`.switcher__radio[value=${savedScheme}]`);
-        currentRadio.checked = true;
-    }
+const keepRadioButtonChecked = (radioName, value) =>
+  document.querySelector(`${radioName}[value=${value}]`).checked = true;
 
-    [...switcherRadios].forEach((radio) => {
-        radio.addEventListener('change', (event) => {
-            setScheme(event.target.value);
-        });
-    });
-}
+const COLOR_SCHEME_CLASS_PREFIX = 'stylesheet__color__scheme--';
+const getColorSchemeStylesheet = scheme =>
+  document.getElementsByClassName(COLOR_SCHEME_CLASS_PREFIX+scheme);
 
-function setupScheme() {
-    const savedScheme = getSavedScheme();
-    const systemScheme = getSystemScheme();
+const getNewMedia = (scheme, color) => scheme === 'auto' ? `(${PCS}: ${color})` :
+  scheme === color ? 'all' : 'not all';
 
-    if (savedScheme === null) return;
+const switchMedia = newScheme => {
+  ['light', 'dark'].forEach(colorScheme => {
+    const colorStyles = getColorSchemeStylesheet(colorScheme);
+    const newMedia = getNewMedia(newScheme, colorScheme);
+    [...colorStyles].forEach(link => link.media = newMedia);
+  });
+};
 
-    if (savedScheme !== systemScheme) {
-        setScheme(savedScheme);
-    }
-}
+const initSwitcherListeners = (className, callbackFn) => {
+  const switcherRadios = document.querySelectorAll(className);
+  [...switcherRadios].forEach((radio) => {
+    radio.addEventListener('change', event => callbackFn(event.target.value));
+  });
+};
 
-function setScheme(scheme) {
+function runSchemeSwitcher() {
+  const SWITCHER_RADIO_CLASS = '.switcher__radio';
+  const initSwitcher = keepRadioButtonChecked;
+  const systemScheme = getSystemScheme();
+  const savedScheme = getSavedScheme();
+
+  const setScheme = scheme => {
     switchMedia(scheme);
+    updateStorage(scheme);
+  };
 
-    if (scheme === 'auto') {
-        clearScheme();
-    } else {
-        saveScheme(scheme);
-    }
+  const haveSave = savedScheme !== null ? true : false;
+  const needSetScheme = (haveSave && savedScheme !== systemScheme) ? true : false;
+  
+  if (needSetScheme) setScheme(savedScheme);
+  if (haveSave) initSwitcher(SWITCHER_RADIO_CLASS, savedScheme);
+  initSwitcherListeners(SWITCHER_RADIO_CLASS, setScheme);
 }
 
-function switchMedia(scheme) {
-    let lightMedia;
-    let darkMedia;
-
-    if (scheme === 'auto') {
-        lightMedia = '(prefers-color-scheme: light)';
-        darkMedia = '(prefers-color-scheme: dark)';
-    } else {
-        lightMedia = (scheme === 'light') ? 'all' : 'not all';
-        darkMedia = (scheme === 'dark') ? 'all' : 'not all';
-    }
-
-    [...lightStyles].forEach((link) => {
-        link.media = lightMedia;
-    });
-
-    [...darkStyles].forEach((link) => {
-        link.media = darkMedia;
-    });
-}
-
-function getSystemScheme() {
-    const darkScheme = darkSchemeMedia.matches;
-
-    return darkScheme ? 'dark' : 'light';
-}
-
-function getSavedScheme() {
-    return localStorage.getItem('color-scheme');
-}
-
-function saveScheme(scheme) {
-    localStorage.setItem('color-scheme', scheme);
-}
-
-function clearScheme() {
-    localStorage.removeItem('color-scheme');
-}
-
-setupSwitcher();
-setupScheme();
+runSchemeSwitcher();
